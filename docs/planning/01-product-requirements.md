@@ -1,4 +1,4 @@
-﻿# 01 — Product Requirements
+# 01 — Product Requirements
 ## Nagorik Sathi AI — R&D Report v1.2
 
 > **Source of truth**: R&D Report v1.2. All requirements are derived from the R&D document.
@@ -272,3 +272,49 @@ There is no explainable, coordinated and evidence-backed channel that carries a 
 - GeoJSON / PostGIS spatial data
 - UTF-8 Bangla text
 - ISO 8601 timestamps
+
+---
+
+## 10. Department Officer Workspace & Workload-Aware Assignment Queue (Explicit Added Requirement)
+
+> **Architectural Addition**: Reconciles the R&D requirement for departmental accountability with concrete staff-allocation mechanics not fully detailed in the initial draft.
+
+### FR-DEPT-ACCEPT: Department Acceptance & Rejection Workflow
+- **Explicit Department Review**: Incoming tasks routed to a department must enter an incoming department queue requiring explicit acceptance before field execution.
+- **Mandatory Rejection Reason**: If a department rejects an assigned task, a structured reason in Bangla must be provided. Rejection does NOT delete or alter the case; it returns the task to coordinator review/reassignment and appends an immutable audit log entry.
+- **Prerequisite Transparency**: Officers must see upstream prerequisite status (e.g., Road repair waiting on Drain cleaning).
+
+### FR-OFFICER-AVAIL: Dynamic Officer Availability & Workload Modeling
+- **Persisted Availability States**: `AVAILABLE`, `BUSY`, `ON_LEAVE`, `OFFLINE`, `INACTIVE`.
+- **Workload Capacity**: Configurable `max_concurrent_tasks` (default: 3-5 tasks) and dynamically tracked `current_active_tasks`. Officers at or above capacity cannot be assigned additional routine tasks.
+- **Duty/Shift Tracking**: Validates active shift windows and ward/zone coverage.
+
+### FR-ASSIGN-REC: Explainable Assignment Recommendation Engine
+- **Hard Eligibility Constraints**: 
+  1. Officer belongs to the responsible department.
+  2. Officer covers the case's authorized ward/zone.
+  3. Officer is in `AVAILABLE` state and on active duty.
+  4. Officer has remaining task capacity (`current_active_tasks < max_concurrent_tasks`).
+  5. Task prerequisites are satisfied.
+- **Transparent Ranking Formulation**: Scores eligible candidates deterministically:
+  $$\text{Score} = w_1 \cdot (1 - \frac{\text{Active Tasks}}{\text{Max Capacity}}) + w_2 \cdot \text{Ward Affinity} + w_3 \cdot \text{SLA Urgency Weight}$$
+- **Explainability**: Outputs concise rationale for the top recommendations.
+- **Dispatch Modes**: Supports dispatcher manual confirmation and configured automatic queue dispatch with strict prerequisite and capacity guards.
+
+### FR-WAIT-QUEUE: Persistent Concurrency-Safe Waiting Queue
+- **Persistence Across Restarts**: Database-backed table `task_waiting_queue` storing task ID, case ID, department, priority, SLA deadline, entry timestamp, queue position, and waiting reason.
+- **Priority & SLA-Risk Sorting**: Emergency and high-SLA risk tasks are prioritized over standard FIFO.
+- **Prerequisite Locking**: Dependent tasks remain in `BLOCKED` queue state until preceding tasks finish.
+- **Atomic Dispatch**: Safe concurrency handling prevents duplicate assignments or race conditions when multiple workers run.
+
+### FR-OFFICER-WORKSPACE: Comprehensive 9-View Department Officer Workspace
+1. Department Overview & Workload Summary
+2. Incoming Department Requests (Accept/Reject with mandatory reason)
+3. My Assigned Tasks & Execution Status
+4. Task Detail Page (Location, description, priority, prerequisites, waiting reasons, evidence)
+5. Officer Availability & Task Capacity Controls
+6. Assignment Recommendation Panel (Ranking & explainability)
+7. Persistent Assignment Queue (Position, status, priority, SLA countdown)
+8. Evidence Upload & Resolution Submission (Before/After comparison)
+9. Assignment & Reassignment History with Notifications
+

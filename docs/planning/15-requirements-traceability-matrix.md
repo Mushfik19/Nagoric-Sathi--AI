@@ -1,4 +1,4 @@
-﻿# 15 — Requirements Traceability Matrix
+# 15 — Requirements Traceability Matrix
 ## Nagorik Sathi AI — R&D Report v1.2
 
 > Links R&D requirements → workflow → module → screen → API → data entity → authorization rule → test.
@@ -142,3 +142,16 @@
 | INC-03 | DFD has 7 processes; application has 10 modules | Explicitly mapped in 05-dfd-and-sequence-design.md §4; they are different decompositions (data-flow vs. functional); not an error |
 | INC-04 | R&D mentions "about 10-15 verified service-information items" — exact count not specified | Confirmed as NEEDS CLARIFICATION (Q3); fixture of 10 items used for prototype until real list confirmed |
 | INC-05 | R&D says "confidence >= gate" shows proposal — does this include cases where only one critical field is below 80%? | Specified in 11-ai-pipeline-and-safety.md: any single critical field below minimum confidence (location < 85%) → treated as below gate; conservative interpretation chosen |
+
+---
+
+## 7. Traceability for Department Workspace, Workload & Queue Management (Explicit Addition)
+
+| Req ID | Requirement Description | Database Entities | API Endpoints | UI Views | Test Target |
+|--------|------------------------|-------------------|---------------|----------|-------------|
+| **FR-DEPT-ACCEPT** | Department acceptance and rejection with mandatory reason | `case_tasks` (`acceptance_status`, `rejection_reason_bn`) | `GET /tasks/department-requests`, `POST /tasks/{id}/accept`, `POST /tasks/{id}/reject` | `OfficerDepartmentRequestsPage` | T3, T13 |
+| **FR-OFFICER-AVAIL** | 5-state officer availability, duty status & capacity | `officers` (`availability_status`, `max_concurrent_tasks`, `current_active_tasks`) | `GET /officers/availability`, `PUT /officers/{id}/availability`, `GET /officers/workload-summary` | `OfficerAvailabilityPage`, `OfficerWorkloadPage` | T7, T9 |
+| **FR-ASSIGN-REC** | Deterministic explainable assignment recommendations | `officers`, `task_assignment_history` | `GET /tasks/{id}/recommendations`, `POST /tasks/{id}/assign` | `OfficerAssignmentRecommendationsModal` | T4, T8, T14 |
+| **FR-WAIT-QUEUE** | Restart-persistent, concurrency-safe priority waiting queue | `task_waiting_queue` | `GET /tasks/waiting-queue`, `POST /tasks/queue/auto-dispatch` | `OfficerAssignmentQueuePage` | T5, T6, T10, T11, T12, T16, T17 |
+| **FR-OFFICER-WORKSPACE** | Complete 9-view department officer workspace | Multiple | All department endpoints | Expanded officer features & routes | Full suite |
+

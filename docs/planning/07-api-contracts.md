@@ -1,4 +1,4 @@
-﻿# 07 — API Contracts
+# 07 — API Contracts
 ## Nagorik Sathi AI — R&D Report v1.2
 
 > All endpoints use REST over HTTPS. Base URL: `/api/v1`. Authentication: Bearer JWT. All timestamps: ISO 8601 UTC. All text fields: UTF-8. Bangla fields use `_bn` suffix.
@@ -600,3 +600,69 @@ data: {"case_id": "uuid", "incident_id": "uuid"}
 | Public analytics | GET /public/analytics | M10 |
 | Admin config | PUT /admin/config/{key} | M10 |
 | Live updates | GET /events/stream | M3 |
+
+---
+
+## 18. Department Workspace, Workload & Queue APIs (Explicit Addition)
+
+### GET /tasks/department-requests
+**Auth required:** JWT (`dept_officer`, `coordinator`, `admin`)  
+**Scope:** Department-scoped  
+**Purpose:** View incoming tasks routed to the officer's department awaiting acceptance/rejection.  
+**Response 200:** Array of tasks with `id`, `case_id`, `title_bn`, `priority`, `sla_hours`, `acceptance_status`, `prerequisites_completed`, and `ai_routing_rationale`.
+
+### POST /tasks/{id}/accept
+**Auth required:** JWT (`dept_officer`, `coordinator`, `admin`)  
+**Purpose:** Department explicitly accepts responsibility for assigned task.  
+**Response 200:** `{"status": "accepted", "task_id": "uuid", "message_bn": "দপ্তর কর্তৃক দায়িত্ব গৃহীত হয়েছে।"}`
+
+### POST /tasks/{id}/reject
+**Auth required:** JWT (`dept_officer`, `coordinator`, `admin`)  
+**Request Body:** `{"reason_bn": "সড়কটি ওয়াসা খননের অধীনে থাকায় সড়ক বিভাগের এখতিয়ার বহির্ভূত।"}`  
+**Purpose:** Department rejects task with mandatory explanation; case returns to coordinator review.  
+**Response 200:** `{"status": "rejected", "task_id": "uuid", "message_bn": "দাপ্তরিক প্রত্যাখ্যান লিপিবদ্ধ এবং সমন্বয়কের নিকট পর্যালোচনার জন্য প্রেরিত।"}`
+
+### GET /officers/availability
+**Auth required:** JWT (`dept_officer`, `coordinator`, `admin`)  
+**Purpose:** Retrieve officer availability, duty shift, active tasks, and capacity.
+
+### PUT /officers/{id}/availability
+**Auth required:** JWT (`dept_officer` for own record, or `coordinator`/`admin`)  
+**Request Body:** `{"status": "available|busy|on_leave|offline|inactive", "max_concurrent_tasks": 4}`  
+**Purpose:** Update availability state and workload ceiling.
+
+### GET /tasks/{id}/recommendations
+**Auth required:** JWT (`dept_officer`, `coordinator`, `admin`)  
+**Purpose:** Return ranked list of eligible officers based on hard constraints and multi-factor scoring formula.  
+**Response 200:**
+```json
+{
+  "task_id": "uuid",
+  "recommendations": [
+    {
+      "officer_id": "uuid",
+      "officer_name_bn": "ইঞ্জিনিয়ার কামরুল হাসান",
+      "designation_bn": "সহকারী প্রকৌশলী (ড্রেনেজ)",
+      "score": 0.94,
+      "current_active_tasks": 1,
+      "max_capacity": 4,
+      "ward_coverage_match": true,
+      "eligibility_reasons": ["ওয়ার্ড ৩ সরাসরি এখতিয়ারভুক্ত", "বর্তমান লোড ২৫% (১/৪)", "কোনো এসএলএ লঙ্ঘন নেই"]
+    }
+  ]
+}
+```
+
+### POST /tasks/{id}/assign
+**Auth required:** JWT (`dept_officer`, `coordinator`, `admin`)  
+**Request Body:** `{"officer_id": "uuid", "assignment_type": "recommended|manual|reassignment", "reason_bn": "ঐচ্ছিক কারণ"}`  
+**Response 200:** `{"status": "assigned", "task_id": "uuid", "officer_id": "uuid"}`
+
+### GET /tasks/waiting-queue
+**Auth required:** JWT (`dept_officer`, `coordinator`, `admin`)  
+**Purpose:** Return department-scoped persistent queue ordered by Priority and SLA deadline.
+
+### POST /tasks/queue/auto-dispatch
+**Auth required:** JWT (`coordinator`, `admin`, or scheduled worker)  
+**Purpose:** Concurrency-safe atomic queue evaluation and dispatch of ready tasks to eligible officers.
+

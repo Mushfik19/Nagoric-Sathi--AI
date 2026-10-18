@@ -1,4 +1,4 @@
-﻿# 06 — Database ERD and Data Dictionary
+# 06 — Database ERD and Data Dictionary
 ## Nagorik Sathi AI — R&D Report v1.2
 
 > Schema design derived from R&D §8 (data stores D1-D5), §6 (domain concepts), §10 (AI pipeline), §11 (RBAC).
@@ -534,6 +534,47 @@ erDiagram
 | required_task_id | The task that must reach "done" status before task_id can begin |
 
 **Constraint**: No circular prerequisites (enforced by application logic check on insert).
+
+### officers (Extended Availability & Capacity Model)
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| availability_status | VARCHAR | DEFAULT 'available' | Enum: available, busy, on_leave, offline, inactive |
+| max_concurrent_tasks | INTEGER | DEFAULT 4 | Configurable workload capacity ceiling |
+| current_active_tasks | INTEGER | DEFAULT 0 | Count of assigned and in_progress tasks |
+| skills | JSONB | DEFAULT '[]' | Problem categories and certifications |
+| shift_schedule | JSONB | NULL | Duty shift hours and working days |
+
+### task_assignment_history
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | UUID | PK | Surrogate key |
+| task_id | UUID | FK → dept_tasks, NOT NULL | Associated task |
+| previous_officer_id | UUID | FK → officers, NULL | Reassigned from officer |
+| new_officer_id | UUID | FK → officers, NULL | Assigned to officer |
+| assigned_by_user_id | UUID | FK → users, NOT NULL | Actor confirming assignment |
+| assignment_type | VARCHAR | NOT NULL | manual, recommended, auto_dispatch, reassignment |
+| reason_bn | TEXT | NULL | Mandatory on rejection or manual override |
+| created_at | TIMESTAMPTZ | NOT NULL | Immutable event timestamp |
+
+### task_waiting_queue
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | UUID | PK | Surrogate key |
+| task_id | UUID | FK → dept_tasks, UNIQUE, NOT NULL | Enqueued task |
+| case_id | UUID | FK → cases, NOT NULL | Case context |
+| department_id | UUID | FK → departments, NOT NULL | Responsible department |
+| priority | VARCHAR | NOT NULL | emergency, high, medium, low |
+| sla_deadline | TIMESTAMPTZ | NOT NULL | Absolute deadline for SLA risk ordering |
+| queue_entry_time | TIMESTAMPTZ | NOT NULL | Queue entry time for FIFO fairness |
+| prerequisite_status | VARCHAR | NOT NULL | ready, pending_prerequisite |
+| eligibility_state | VARCHAR | NOT NULL | eligible, blocked, at_capacity |
+| waiting_reason_bn | TEXT | NULL | Reason for holding in queue |
+| assignment_attempts | INTEGER | DEFAULT 0 | Count of dispatch attempts |
+| status | VARCHAR | NOT NULL | queued, dispatched, blocked, cancelled |
+
 
 ### ai_results
 

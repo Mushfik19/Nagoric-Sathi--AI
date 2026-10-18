@@ -1,0 +1,348 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..800;1,9..40,400..800&family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap');
+@import "./styles/tokens.css";
+@import "tailwindcss";
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    scroll-padding-top: 90px;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-editorial);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-width: 320px;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  /* Accessibility: Text Scaling */
+  html.text-size-normal { font-size: 16px; }
+  html.text-size-large { font-size: 18.5px; }
+  html.text-size-xlarge { font-size: 21px; }
+
+  /* Accessibility: High Contrast */
+  html.high-contrast,
+  body.high-contrast {
+    --bg: #000000;
+    --paper: #0a0a0a;
+    --ink: #ffffff;
+    --muted: #e0e0e0;
+    --line: #ffffff;
+    --accent: #ffff00;
+    --gold: #ffff00;
+    --green: #00ff66;
+  }
+
+  /* Accessibility: Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Accessible Focus Outlines (WCAG 2.1 AA) */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+}
+
+/* Luxury Editorial & Civic Card Primitives */
+.civic-card {
+  background-color: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.civic-card-elevated {
+  background-color: var(--paper-elevated);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-card);
+}
+
+.civic-card-hover:hover {
+  border-color: var(--accent);
+}
+
+/* Glassmorphism Topbar */
+.lux-topbar {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+
+body[data-theme="dark"] .lux-topbar {
+  background: rgba(13, 16, 14, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Light Civic Theme Palette Mappings (Soft Off-White & High-Contrast Ink) */
+:root:not([data-theme="dark"]) {
+  /* Surfaces */
+  .bg-\[\#0d100e\] {
+    background-color: var(--bg) !important;
+  }
+  .bg-\[\#151a16\] {
+    background-color: var(--paper) !important;
+  }
+  .bg-\[\#1b221c\] {
+    background-color: #f0f4f0 !important;
+  }
+  .bg-\[\#090f09\] {
+    background-color: #eef2ed !important;
+  }
+
+  /* Status and Pill Backgrounds */
+  .bg-\[\#1c2b20\] {
+    background-color: #eaf5ed !important;
+  }
+  .bg-\[\#1b2f27\] {
+    background-color: #eaf5ed !important;
+  }
+  .bg-\[\#373224\] {
+    background-color: #fbf4e6 !important;
+  }
+  .bg-\[\#382326\] {
+    background-color: #fef2f2 !important;
+  }
+  .bg-\[\#2a293d\] {
+    background-color: #f3f0fc !important;
+  }
+  .bg-\[\#22312f\] {
+    background-color: #f0fdf4 !important;
+  }
+
+  /* Borders */
+  .border-\[\#343d34\] {
+    border-color: var(--line) !important;
+  }
+  .border-\[\#242c24\] {
+    border-color: var(--line-subtle) !important;
+  }
+  .border-\[\#295e42\] {
+    border-color: #bbf7d0 !important;
+  }
+  .border-\[\#6b5c3e\] {
+    border-color: #fde68a !important;
+  }
+  .border-\[\#71434a\] {
+    border-color: #fecaca !important;
+  }
+  .border-\[\#4f4874\] {
+    border-color: #c7d2fe !important;
+  }
+
+  /* High Legibility Inks */
+  .text-\[\#eeeee6\] {
+    color: var(--ink) !important;
+  }
+  .text-\[\#a7b0a8\] {
+    color: var(--muted) !important;
+  }
+  .text-\[\#708379\] {
+    color: #5c6a5f !important;
+  }
+  .text-\[\#c8d1c9\],
+  .text-\[\#cbd5cc\] {
+    color: #1f2922 !important;
+  }
+  .text-\[\#d4c19a\] {
+    color: #8c6820 !important;
+  }
+  .text-\[\#4b9e78\] {
+    color: #166534 !important;
+  }
+  .text-\[\#a8e6cf\] {
+    color: #15803d !important;
+  }
+  .text-\[\#e8b6b8\] {
+    color: #991b1b !important;
+  }
+  .text-\[\#c3b6e8\] {
+    color: #4338ca !important;
+  }
+
+  /* Inputs, Textareas, Selects */
+  input.bg-\[\#0d100e\],
+  textarea.bg-\[\#0d100e\],
+  select.bg-\[\#0d100e\],
+  input.bg-\[\#151a16\],
+  textarea.bg-\[\#151a16\],
+  select.bg-\[\#151a16\] {
+    background-color: #ffffff !important;
+    color: var(--ink) !important;
+    border-color: var(--line) !important;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #6b7280 !important;
+  }
+}
+
+/* Dark Cinematic Mode Overrides (Eliminates stark white boxes and aligns palette) */
+body[data-theme="dark"],
+html[data-theme="dark"] {
+  /* Prevent rogue white backgrounds in dark mode */
+  .bg-white:not(.keep-white) {
+    background-color: var(--paper) !important;
+    color: var(--ink) !important;
+  }
+  .bg-gray-50:not(.keep-white),
+  .bg-gray-100:not(.keep-white) {
+    background-color: var(--paper-elevated) !important;
+  }
+
+  /* Status and badge dark styling */
+  .bg-\[\#eaf5ed\],
+  .bg-\[\#f0fdf4\] {
+    background-color: #1c2b20 !important;
+    border-color: #295e42 !important;
+  }
+  .text-\[\#166534\] {
+    color: #4b9e78 !important;
+  }
+  .border-\[\#bbf7d0\] {
+    border-color: #295e42 !important;
+  }
+  .bg-\[\#fffbeb\] {
+    background-color: #373224 !important;
+    border-color: #6b5c3e !important;
+  }
+  .text-\[\#92400e\] {
+    color: #d4c19a !important;
+  }
+  .text-\[\#8c6820\] {
+    color: #d4c19a !important;
+  }
+  .border-\[\#fde68a\] {
+    border-color: #6b5c3e !important;
+  }
+  .bg-\[\#fef2f2\] {
+    background-color: #382326 !important;
+    border-color: #71434a !important;
+  }
+  .text-\[\#991b1b\] {
+    color: #e8b6b8 !important;
+  }
+  .border-\[\#fecaca\] {
+    border-color: #71434a !important;
+  }
+  .bg-\[\#ecfeff\] {
+    background-color: #152e35 !important;
+    border-color: #1e4a55 !important;
+  }
+  .text-\[\#0e7490\] {
+    color: #67e8f9 !important;
+  }
+  .border-\[\#a5f3fc\] {
+    border-color: #1e4a55 !important;
+  }
+  .bg-\[\#eef2ff\] {
+    background-color: #2a293d !important;
+    border-color: #4f4874 !important;
+  }
+  .text-\[\#4338ca\] {
+    color: #c3b6e8 !important;
+  }
+  .border-\[\#c7d2fe\] {
+    border-color: #4f4874 !important;
+  }
+
+  /* Borders */
+  .border-gray-200,
+  .border-gray-300 {
+    border-color: var(--line) !important;
+  }
+}
+
+/* Home Hero Preservation — Protect Cinematic Carousel Overlays */
+.hero-preserve,
+.hero-preserve * {
+  --ink: #eeeee6;
+}
+.hero-preserve .text-\[\#eeeee6\] {
+  color: #eeeee6 !important;
+}
+.hero-preserve .text-\[\#a7b0a8\] {
+  color: #a7b0a8 !important;
+}
+.hero-preserve .text-\[\#cbd5cc\] {
+  color: #cbd5cc !important;
+}
+.hero-preserve .text-\[\#d4c19a\] {
+  color: #d4c19a !important;
+}
+.hero-preserve .text-\[\#708379\] {
+  color: #708379 !important;
+}
+.hero-preserve .border-\[\#343d34\] {
+  border-color: #343d34 !important;
+}
+.hero-preserve .bg-\[\#151a16\]\/85 {
+  background-color: rgba(21, 26, 22, 0.85) !important;
+}
+.hero-preserve .bg-\[\#0d100e\] {
+  background-color: #0d100e !important;
+}
+.hero-preserve .bg-\[\#0d100e\]\/40 {
+  background-color: rgba(13, 16, 14, 0.4) !important;
+}
+
+/* Leaflet Container Fixes */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  font-family: var(--font-editorial) !important;
+  background-color: var(--paper);
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--paper) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--shadow-lux) !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--paper) !important;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}

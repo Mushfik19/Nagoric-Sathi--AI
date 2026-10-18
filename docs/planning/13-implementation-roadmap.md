@@ -1,4 +1,4 @@
-﻿# 13 — Implementation Roadmap
+# 13 — Implementation Roadmap
 ## Nagorik Sathi AI — R&D Report v1.2
 
 > Roadmap derived from R&D §6.1 (12-week plan). Phases start only after architecture review and approval.
@@ -271,6 +271,36 @@ backend/app/modules/m8_evidence/
 - E2E-04 (citizen objection and re-review)
 - UT-DM-05 (closure without evidence blocked)
 - FR-03 (evidence upload retry)
+
+### 5.3 Department Dispatcher, Officer Availability & Persistent Queue (Explicit Added Capability)
+
+**Files/modules to implement:**
+```
+backend/app/models/
+  task_assignment.py  (OfficerAvailabilityEnum, TaskAssignmentHistory, TaskWaitingQueue)
+backend/app/services/
+  task_assignment_service.py (Department accept/reject, eligibility discovery, scoring, queue dispatch)
+backend/app/routers/
+  departments.py      (Incoming requests, accept, reject)
+  officers.py         (Availability, workload, recommendations, assign, waiting queue)
+
+frontend/src/features/officer/
+  OfficerDashboardPage.tsx
+  OfficerDepartmentRequestsPage.tsx
+  OfficerTasksPage.tsx
+  OfficerTaskDetailPage.tsx
+  OfficerAvailabilityPage.tsx
+  OfficerWorkloadPage.tsx
+  OfficerAssignmentQueuePage.tsx
+  OfficerAssignmentRecommendationModal.tsx
+```
+
+**Tests that must pass:**
+- T3, T13: Department explicit accept/reject with mandatory reason
+- T4, T8: Explainable assignment recommendations (ward coverage, capacity ratio, SLA urgency)
+- T5, T6, T10, T11: Persistent waiting queue, priority/SLA risk ordering, prerequisite locking, atomic dispatch
+- T7, T9: Officer availability state changes and strict capacity ceiling
+- T14, T15: Task assignment history preservation and RBAC unauthorized role prevention
 
 ---
 

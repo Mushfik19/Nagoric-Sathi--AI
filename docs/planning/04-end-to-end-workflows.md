@@ -1,4 +1,4 @@
-﻿# 04 — End-to-End Workflows
+# 04 — End-to-End Workflows
 ## Nagorik Sathi AI — R&D Report v1.2
 
 > Workflows derived from R&D §6.2 (8-stage flowchart, Figure 1), §6.3 (feature behaviour), §10.3 (responsibility), §10.6 (integrity checks), §10.8 (duplicates), §10.9 (async pipeline), §12.1 (defence in depth), §13 (fallback).
@@ -297,3 +297,52 @@ stateDiagram-v2
 | Escalation | M7, M10 | m7_coordination | POST /cases/{id}/escalate |
 | Audit | M9 | m9_identity | GET /audit (admin only) |
 | Public dashboard | M10 | m10_admin | GET /public/analytics |
+
+---
+
+## 9. Department Acceptance & Workload-Aware Allocation Workflow (Explicit Addition)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Coord as Case Coordinator
+    actor DeptHead as Department Officer / Dispatcher
+    actor FieldOff as Field Officer
+    participant Sys as Nagorik Sathi AI Engine
+    participant Queue as task_waiting_queue
+
+    Coord->>Sys: Approves Coordinated Multi-Dept Plan
+    Sys->>DeptHead: Routes Task to Department Incoming Queue
+    
+    alt Department Rejection
+        DeptHead->>Sys: POST /tasks/{id}/reject (Mandatory Reason BN)
+        Sys->>Coord: Escalates Task back to Coordinator Review
+        Sys->>Sys: Records Rejection in Audit Log (Case History intact)
+    else Department Acceptance
+        DeptHead->>Sys: POST /tasks/{id}/accept
+        Sys->>Sys: Marks Task Acceptance = ACCEPTED
+        
+        alt Prerequisites Pending
+            Sys->>Queue: Enqueues Task with status = BLOCKED
+            Sys->>DeptHead: Displays "Waiting for Prerequisite"
+        else Prerequisites Satisfied
+            Sys->>Sys: Evaluates Available Eligible Officers
+            alt Eligible Officers Available
+                Sys->>DeptHead: Presents Explainable Ranked Recommendations
+                DeptHead->>Sys: Confirms Assignment (or Auto-Dispatch triggers)
+                Sys->>FieldOff: Task Assigned (IN_PROGRESS), SLA countdown begins
+            else No Officers Available / At Capacity
+                Sys->>Queue: Enqueues Task with status = QUEUED
+                Note over Queue: Persistent queue, priority/SLA sorted
+            end
+        end
+    end
+
+    Note over FieldOff,Sys: When Officer Finishes Task / Shifts to AVAILABLE
+    FieldOff->>Sys: Submits Resolution Evidence (Task Completed)
+    Sys->>Sys: Frees Officer Capacity (-1 active task)
+    Sys->>Sys: Evaluates Waiting Queue for Eligible Tasks
+    Sys->>Queue: Atomically Claims Highest Priority/SLA Eligible Task
+    Sys->>FieldOff: Dispatches Next Task
+```
+

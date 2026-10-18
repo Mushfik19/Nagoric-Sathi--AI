@@ -1,0 +1,16 @@
+{
+  "name": "নাগরিক সাথী এআই (Nagorik Sathi AI)",
+  "short_name": "নাগরিক সাথী",
+  "description": "সিটি কর্পোরেশনের এআই-সহায়তাপ্রাপ্ত নাগরিক সেবা ও সমন্বয় প্ল্যাটফর্ম",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#059669",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

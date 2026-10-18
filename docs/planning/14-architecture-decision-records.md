@@ -1,4 +1,4 @@
-﻿# 14 — Architecture Decision Records
+# 14 — Architecture Decision Records
 ## Nagorik Sathi AI — R&D Report v1.2
 
 > Each ADR captures a significant architectural decision, its rationale, alternatives considered, and consequences.
@@ -193,3 +193,21 @@
 **Consequences:**
 - (+) Honest representation; no misleading claims
 - (-) Demo data is not real; prototype results cannot be generalised to real service performance
+
+---
+
+## ADR-015: Explainable Workload-Aware Officer Assignment & Persistent Waiting Queue
+
+**Status:** Accepted (Explicit Architectural Addition)  
+**Decision:** Implement a multi-factor transparent assignment engine with hard eligibility gating, coupled with a restart-persistent, concurrency-safe waiting queue (`task_waiting_queue`).  
+**Context:** The R&D v1.2 report mandates departmental responsibility and task tracking, but the concrete staff-allocation mechanism and handling of peak saturated states were unspecified.  
+**Rationale:**
+1. A black-box ML model for staff assignment cannot be audited, risks unfair bias, and would be a fabricated claim without true training data.
+2. A deterministic model combining capacity utilization, ward locality, and SLA urgency provides clear explainability in Bangla to dispatchers and officers.
+3. Persistent queues ensure zero task loss during server restarts or officer unavailability bursts, while database-level row locks prevent concurrency race conditions.  
+**Consequences:**
+- (+) Fair, explainable and auditable field work distribution.
+- (+) Strict adherence to task prerequisites (dependent road work never assigned prematurely).
+- (+) Graceful handling of officer saturation without dropped tasks.
+- (-) Dispatch rules must be kept synchronized across departments.
+

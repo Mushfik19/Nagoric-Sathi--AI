@@ -1,4 +1,4 @@
-﻿# 12 — Testing and Acceptance Criteria
+# 12 — Testing and Acceptance Criteria
 ## Nagorik Sathi AI — R&D Report v1.2
 
 > Test plan derived from R&D §15 (Table 35). All evaluation targets are design targets to be confirmed by validation; they are not claimed results.
@@ -289,3 +289,29 @@
 | Usability task results | Observation notes + SUS forms | Research measurement (requires participants) |
 | Shadow mode agreement rate | Production monitoring logs | Requires live deployment |
 | Pilot resolution time | Approved real pilot data | Requires city corporation cooperation |
+
+---
+
+## 15. Department Workspace, Workload & Queue Acceptance Tests (Explicit Addition)
+
+| # | Test Scenario | Acceptance Criteria | Test Target |
+|---|---------------|---------------------|-------------|
+| T1 | Classification & Routing | Problem classified, asset resolved, explainable department recommendation produced | `test_ai_gate.py` |
+| T2 | Low-Confidence Fallback | Confidence < 80% or unknown asset/location sent to human verification queue | `test_ai_gate.py` |
+| T3 | Department Accept/Reject | Explicit acceptance marks task accepted; rejection requires mandatory Bangla reason and returns case to review | `test_officer_workflow.py` |
+| T4 | Free Officer Recommendation | Available eligible officer with capacity receives top ranked recommendation with rationale | `test_officer_workflow.py` |
+| T5 | Queueing on Saturation | When all officers are busy or at max capacity, task enters `task_waiting_queue` with status `QUEUED` | `test_officer_workflow.py` |
+| T6 | Reactive Queue Dispatch | Releasing officer capacity / toggling status to `AVAILABLE` triggers automatic assignment | `test_officer_workflow.py` |
+| T7 | Inactive/Busy Exclusion | Officers in `BUSY`, `ON_LEAVE`, `OFFLINE`, or `INACTIVE` state are excluded from recommendations | `test_officer_workflow.py` |
+| T8 | Ward/Dept Boundary Guard | Officers from wrong department or non-covering ward cannot be assigned | `test_officer_workflow.py` |
+| T9 | Strict Capacity Ceiling | An officer's active assigned tasks cannot exceed `max_concurrent_tasks` | `test_officer_workflow.py` |
+| T10 | Priority & SLA Ordering | Emergency tasks and impending SLA breaches are dispatched ahead of older routine FIFO items | `test_officer_workflow.py` |
+| T11 | Prerequisite Guard | Dependent road-repair tasks remain locked in `BLOCKED` status until drain cleaning completes | `test_officer_workflow.py` |
+| T12 | Concurrency Safety | Parallel dispatch requests use transactional row locks (`SELECT FOR UPDATE`), preventing double-dispatch | `test_officer_workflow.py` |
+| T13 | Rejection Workflow Escalate | Rejected task transitions back to coordinator without data loss; case status reflects rejection | `test_officer_workflow.py` |
+| T14 | History Preservation | Reassignment logs previous officer, new officer, actor, and reason into `task_assignment_history` | `test_officer_workflow.py` |
+| T15 | Scope & RBAC Enforced | Unauthorized roles (citizens, officers of other departments) receive 403 Forbidden | `test_officer_workflow.py` |
+| T16 | State & Notifications | Queue status transitions to `DISPATCHED` and notification is delivered to assigned officer | `test_officer_workflow.py` |
+| T17 | Restart Persistence | Tasks held in `task_waiting_queue` survive backend restarts with position and metadata intact | `test_officer_workflow.py` |
+| T18 | Full Compound Scenario | Waste → Drain → Road end-to-end multi-department flow completes with evidence, objection, and closure | `test_case_workflow.py` |
+

@@ -1,4 +1,4 @@
-﻿# 10 — RBAC and Security
+# 10 — RBAC and Security
 ## Nagorik Sathi AI — R&D Report v1.2
 
 > RBAC matrix derived from R&D §11.2 (Table 30). Security controls from R&D §11.1 (Table 29) and §11.3.
@@ -42,7 +42,11 @@
 | **Cases** | Close | — | — | — | Jurisdiction | — | — |
 | **Department tasks** | R | See case | Ward scope | Own dept only | Jurisdiction | — | — |
 | **Department tasks** | U (status update) | — | — | Own dept only | — | — | — |
-| **Department tasks** | Accept/Reject | — | — | Own dept only | — | — | — |
+| **Department tasks** | Accept/Reject | — | — | Own dept only (mandatory reason on reject) | Jurisdiction | — | — |
+| **Officer availability & capacity** | U | — | — | Own officer profile | Jurisdiction | Admin | — |
+| **Task waiting queue** | R + Dispatch | — | — | Own dept only | Jurisdiction | Admin | — |
+| **Assignment recommendations** | R + Confirm | — | — | Own dept only | Jurisdiction | Admin | — |
+| **Assignment history** | R | — | Ward scope | Own dept only | Jurisdiction | Admin | — |
 | **Evidence files** | C (upload) | — | Assisted upload | Own dept task | — | — | — |
 | **Evidence files** | R | Own case, masked | Ward scope | Own dept | Jurisdiction | — | — |
 | **Resolution review** | A | — | Ward scope | — | Jurisdiction | — | — |
@@ -138,6 +142,10 @@ These operations must be explicitly denied:
 | T-RBAC-11 | Ward desk | Create system configuration | 403 PERMISSION_DENIED |
 | T-RBAC-12 | Coordinator | Register a new user | 403 PERMISSION_DENIED |
 | T-RBAC-13 | Citizen | Access verification queue | 403 PERMISSION_DENIED |
+| T-RBAC-14 | Citizen / Ward desk | Accept or reject department task | 403 PERMISSION_DENIED |
+| T-RBAC-15 | Dept officer (Waste) | Accept or dispatch Drain department task | 403 PERMISSION_DENIED |
+| T-RBAC-16 | Dept officer | Assign officer exceeding max task capacity | 400 CAPACITY_EXCEEDED |
+| T-RBAC-17 | Citizen | Trigger waiting queue auto-dispatch | 403 PERMISSION_DENIED |
 
 ---
 

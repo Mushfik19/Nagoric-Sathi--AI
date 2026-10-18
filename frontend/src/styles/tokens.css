@@ -1,0 +1,91 @@
+/*
+ * Nagorik Sathi AI — Centralized Design System Tokens
+ * Derived from Reference Specification & R&D Report v1.2
+ * Supports Dark Cinematic Mode & Ivory Light Editorial Mode
+ */
+
+:root {
+  /* Default: Soft Off-White Civic Theme ("full sada na but omn type ar color") */
+  --bg: #f6f8f6;
+  --paper: #ffffff;
+  --paper-elevated: #ffffff;
+  --ink: #111813;
+  --muted: #475549;
+  --line: #dbe2da;
+  --line-subtle: #e6ece5;
+  
+  --green: #1b5e3a;
+  --green-dark: #123e27;
+  --green-light: #eaf5ed;
+  --navy: #113b34;
+  --gold: #8c6820;
+  --accent: #1b5e3a;
+  
+  /* Semantic Status Tokens (Light Civic High-Contrast) */
+  --status-emergency: #991b1b;
+  --status-emergency-bg: #fef2f2;
+  --status-emergency-border: #fecaca;
+  --status-high: #92400e;
+  --status-high-bg: #fffbeb;
+  --status-high-border: #fde68a;
+  --status-medium: #4338ca;
+  --status-medium-bg: #eef2ff;
+  --status-medium-border: #c7d2fe;
+  --status-low: #15803d;
+  --status-low-bg: #f0fdf4;
+  --status-low-border: #bbf7d0;
+  --status-resolved: #166534;
+  --status-resolved-bg: #eaf5ed;
+  --status-resolved-border: #bbf7d0;
+
+  /* Typography */
+  --font-editorial: 'Hind Siliguri', 'Noto Sans Bengali', 'Manrope', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-bangla: 'Hind Siliguri', 'Noto Sans Bengali', 'DM Sans', sans-serif;
+  
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  --shadow-lux: 0 10px 30px rgba(17, 24, 19, 0.08);
+  --shadow-card: 0 2px 12px rgba(17, 24, 19, 0.05);
+}
+
+/* Optional Dark Cinematic Mode */
+body[data-theme="dark"],
+html[data-theme="dark"] {
+  --bg: #0d100e;
+  --paper: #151a16;
+  --paper-elevated: #1b221c;
+  --ink: #eeeee6;
+  --muted: #a7b0a8;
+  --line: #343d34;
+  --line-subtle: #242c24;
+  
+  --green: #4b9e78;
+  --green-dark: #295e42;
+  --green-light: #1c2b20;
+  --navy: #0d100e;
+  --gold: #d4c19a;
+  --accent: #d4c19a;
+  
+  --status-emergency: #e8b6b8;
+  --status-emergency-bg: #382326;
+  --status-emergency-border: #71434a;
+  --status-high: #d4c19a;
+  --status-high-bg: #373224;
+  --status-high-border: #6b5c3e;
+  --status-medium: #c3b6e8;
+  --status-medium-bg: #2a293d;
+  --status-medium-border: #4f4874;
+  --status-low: #a8e6cf;
+  --status-low-bg: #1c2b20;
+  --status-low-border: #295e42;
+  --status-resolved: #4b9e78;
+  --status-resolved-bg: #1c2b20;
+  --status-resolved-border: #295e42;
+
+  --shadow-lux: 0 10px 40px rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.25);
+}

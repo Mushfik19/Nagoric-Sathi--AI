@@ -1,4 +1,4 @@
-﻿# 02 — Scope and Assumptions
+# 02 — Scope and Assumptions
 ## Nagorik Sathi AI — R&D Report v1.2
 
 > Requirements derived from R&D v1.2. **[PROPOSED]** = implementation decision not specified by R&D. **[NEEDS CLARIFICATION]** = requires confirmation before implementation.
@@ -185,3 +185,21 @@ This distinction is critical and must not be confused in implementation:
 | Q7 | NID required for citizen registration? | M9 identity model | Medium |
 | Q8 | CloudApper capability verification results available? | Optional integration decision | Low |
 | Q9 | Pre-approved data for shadow-mode evaluation? | AI evaluation methodology | High |
+
+---
+
+## 9. Department Officer Workspace & Staff Allocation Scope (Explicit Addition)
+
+### In-Scope Additions
+- Explicit Department Acceptance and Rejection workflow (with mandatory reasons and review routing).
+- Five-state officer availability tracking (`AVAILABLE`, `BUSY`, `ON_LEAVE`, `OFFLINE`, `INACTIVE`) with shift status.
+- Capacity constraints (`max_concurrent_tasks` and dynamically calculated active tasks).
+- Deterministic, explainable assignment recommendation engine based on hard eligibility rules and multi-criteria weighted scoring (priority, SLA risk, ward affinity, normalized load, fairness).
+- Concurrency-safe, restart-persistent task waiting queue (`task_waiting_queue`).
+- Automatic queue dispatch trigger on officer capacity release / availability change.
+- Expanded 9-view department officer interface with role-scoped permissions.
+
+### Boundary Assumptions
+- **Staff Allocation Policy**: As the original R&D did not specify an algorithmic or statistical ML model for staff allocation, a transparent, deterministic multi-factor ranking model is implemented and documented, avoiding black-box or fabricated ML claims.
+- **Scope Isolation**: Officers only view tasks belonging to their assigned department and ward coverage unless granted supervisor/dispatcher permissions.
+

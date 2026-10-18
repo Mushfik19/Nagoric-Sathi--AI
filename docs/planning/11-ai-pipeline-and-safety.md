@@ -1,4 +1,4 @@
-﻿# 11 — AI Pipeline and Safety
+# 11 — AI Pipeline and Safety
 ## Nagorik Sathi AI — R&D Report v1.2
 
 > AI pipeline derived from R&D §10.1–10.12 and §13 (safety rules). All evaluation targets are design targets, not claimed results.
@@ -288,3 +288,28 @@ From model memory on any of the above.
 - Shadow mode: AI runs silently beside the manual process on approved data to measure agreement rate before gate is activated
 - Model improvement: wrong proposals and staff corrections added to improvement set
 - No model is described as accurate until evaluation has been run on held-out data
+
+---
+
+## 12. Explainable Assignment Recommendation & Transparent Staff Scheduling (Explicit Addition)
+
+### 12.1 Algorithmic Staff Allocation Policy
+To ensure fair, predictable and auditable field task distribution, officer recommendations use a **transparent, deterministic multi-factor model** rather than an opaque statistical ML system:
+
+1. **Hard Eligibility Filter (Binary Gate)**:
+   - Officer's assigned department matches task department (`officer.department_id == task.department_id`).
+   - Officer covers the case ward (`officer.ward_id == case.ward_id` or zone-wide coverage).
+   - Officer state is `AVAILABLE` and on active duty shift.
+   - Officer has capacity available: $\text{current\_active\_tasks} < \text{max\_concurrent\_tasks}$.
+   - Task prerequisites are satisfied (`prerequisites_completed == True`).
+
+2. **Deterministic Ranking Formulation**:
+   $$\text{Score}_i = 0.45 \cdot \left(1 - \frac{\text{ActiveTasks}_i}{\text{MaxCapacity}_i}\right) + 0.35 \cdot \text{WardMatch}_i + 0.20 \cdot \text{SLAUrgencyWeight}$$
+   - **Load Balancing**: Prioritizes officers with lower utilization.
+   - **Ward Affinity**: Prioritizes officers assigned directly to the incident ward (1.0) over zone backup officers (0.5).
+   - **SLA Urgency**: Scales recommendation urgency for Emergency and High priority cases approaching SLA breach.
+
+3. **Explainability & Audit Transparency**:
+   - Every recommendation generates concise, human-readable rationale in Bangla explaining the exact factors considered.
+   - Dispatch confirmation or automated dispatch events are recorded immutably in `task_assignment_history`.
+

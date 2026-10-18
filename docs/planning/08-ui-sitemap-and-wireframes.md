@@ -1,4 +1,4 @@
-﻿# 08 — UI Sitemap and Screen Inventory
+# 08 — UI Sitemap and Screen Inventory
 ## Nagorik Sathi AI — R&D Report v1.2
 
 ---
@@ -32,9 +32,15 @@ Nagorik Sathi AI PWA
 │   ├── /ward/incidents — All incidents in ward
 │   └── /ward/incidents/{incident_id} — Incident detail
 ├── Department Officer (role: dept_officer)
-│   ├── /dept/dashboard — Department task overview
-│   ├── /dept/tasks — My assigned tasks
-│   └── /dept/tasks/{task_id} — Task workspace (status + evidence)
+│   ├── /dept/dashboard — Department Overview & Workload Summary
+│   ├── /dept/requests — Incoming Department Requests (Accept/Reject with Reason)
+│   ├── /dept/tasks — My Assigned Tasks & Execution Status
+│   ├── /dept/tasks/{task_id} — Task Detail Workspace (Location, Prerequisites, Evidence)
+│   ├── /dept/availability — Officer Availability & Task Capacity Controls
+│   ├── /dept/recommendations — Assignment Recommendation Panel (Ranking & Explainability)
+│   ├── /dept/queue — Persistent Task Waiting Queue (SLA Risk, Priority Order)
+│   ├── /dept/workload — Department Workload Distribution & Team Metrics
+│   └── /dept/history — Assignment, Reassignment & Audit History with Notifications
 ├── Case Coordinator (role: coordinator)
 │   ├── /coord/dashboard — Coordinator overview
 │   ├── /coord/cases — All cases view
@@ -203,31 +209,68 @@ Nagorik Sathi AI PWA
 
 ---
 
-### S-DEPT-01: Department Dashboard
-**Purpose:** Department officer task overview  
-**Data:** My assigned tasks by status and priority  
-**Actions:** Navigate to task workspace  
-**Auth:** dept_officer; own department only  
+### S-DEPT-01: Department Overview & Workload Summary
+**Purpose:** Department officer operational cockpit and department health summary  
+**Data:** GET /tasks/department-requests, GET /officers/workload  
+**Displays:**
+- Active task counts by priority (Emergency, High, Medium, Low)
+- Department officer workload summary table (officer name, designation, status, active tasks vs max capacity)
+- Direct link tiles to Incoming Requests, Active Queue, and My Tasks
+**Auth:** dept_officer, coordinator, admin; department-scoped  
 
-### S-DEPT-02: My Tasks List
-**Purpose:** List of assigned tasks sorted by priority and order  
-**Data:** GET /tasks/my-tasks  
-**Display:** Priority badge; task_order indicator; case number; problem type; status; prerequisite indicator ("Waiting for: Task 1")  
-**Acceptance criteria:** Prerequisite-blocked tasks clearly indicated; priority sort correct  
-
-### S-DEPT-03: Task Workspace
-**Purpose:** Primary work interface for department officer  
-**Data:** GET /tasks/{task_id}; GET /tasks/{task_id}/evidence  
+### S-DEPT-02: Incoming Department Requests Queue
+**Purpose:** Dedicated queue for tasks routed to the officer's department awaiting formal acceptance/rejection  
+**Data:** GET /tasks/department-requests  
 **Actions:**
-- Accept task (POST /tasks/{id}/accept)
-- Reject task with reason (POST /tasks/{id}/reject)
-- Update status: Under Inspection → In Progress → Resolved-Proof Uploaded
-- Set waiting reason if blocked
-- Upload before/after photos and videos (POST /tasks/{id}/evidence)
-- View case context (other tasks in same case; prerequisites)
-**Displays:** Full case report package (Bangla text/transcript, location, priority, history, other department status)  
-**Validation:** Evidence required before marking resolved if evidence_required=true  
-**Acceptance criteria:** Evidence upload works on mobile; status updates push to citizen SSE  
+- Accept task (POST /tasks/{id}/accept) -> Transitions task to accepted state and enables assignment
+- Reject task (POST /tasks/{id}/reject) -> Opens modal requiring mandatory Bangla reason; escalates back to coordinator
+**Displays:** Problem type badge, case reference, priority, SLA countdown, upstream prerequisite status, AI routing explanation
+**Acceptance criteria:** Rejection button disabled until non-empty reason provided; acceptance triggers notification  
+
+### S-DEPT-03: My Assigned Tasks & Execution Status
+**Purpose:** Personal workbench showing tasks assigned directly to the logged-in officer  
+**Data:** GET /tasks/my-tasks  
+**Filters:** All, In Progress, Blocked / Waiting, Under Inspection, Completed  
+**Displays:** Task title, ward number, priority, SLA timer, prerequisite status badge ("অপেক্ষমাণ" or "চলমান")  
+**Actions:** Open Task Detail, Quick Status Update, Launch Navigation  
+
+### S-DEPT-04: Task Detail & Execution Page
+**Purpose:** In-depth execution workspace for a specific departmental task  
+**Data:** GET /tasks/{task_id}, GET /tasks/{task_id}/evidence  
+**Displays:** Full incident context, verified GPS coordinates with Leaflet/OpenStreetMap mini-map, citizen description and voice transcript, dependency prerequisites, current waiting reason, SLA timeline  
+**Actions:** Update task execution status, toggle waiting reason, trigger recommendation modal, submit evidence  
+
+### S-DEPT-05: Officer Availability & Task Capacity Controls
+**Purpose:** Officer duty schedule, shift management, and concurrent task ceiling administration  
+**Data:** GET /officers/availability/me, PUT /officers/{id}/availability  
+**Displays:** Current status badge (Available, Busy, On Leave, Offline, Inactive), active tasks count, maximum capacity progress bar  
+**Actions:** Toggle duty status, update maximum concurrent task capacity (within authorized thresholds), schedule planned leave  
+
+### S-DEPT-06: Assignment Recommendation Panel
+**Purpose:** Explainable AI-assisted officer dispatch modal and recommendation viewer  
+**Data:** GET /tasks/{id}/recommendations  
+**Displays:**
+- Ranked list of eligible officers within department
+- Multi-criteria score breakdown (Ward affinity, capacity ratio, SLA urgency)
+- Transparent eligibility explanation badges ("ওয়ার্ড ৩ এখতিয়ারভুক্ত", "বর্তমান লোড ২৫%", "এসএলএ ঝুঁকি নেই")
+**Actions:** Confirm recommended officer assignment (POST /tasks/{id}/assign), manual officer override with mandatory reason  
+
+### S-DEPT-07: Persistent Assignment Waiting Queue
+**Purpose:** Real-time visibility into accepted tasks awaiting officer availability or prerequisite resolution  
+**Data:** GET /tasks/waiting-queue  
+**Displays:** Queue position, task ID, case reference, priority, SLA countdown, eligibility state (Queued, Blocked, Ready), waiting reason  
+**Actions:** Trigger Concurrency-Safe Auto-Dispatch (POST /tasks/queue/auto-dispatch), prioritize urgent task  
+
+### S-DEPT-08: Evidence Upload & Resolution Submission
+**Purpose:** Field resolution proof capture, before-and-after photo/video comparison, and closure submission  
+**Data:** POST /tasks/{id}/evidence, PATCH /tasks/{id}/status  
+**Displays:** Side-by-side Before/After preview, media metadata, file size validation  
+**Validation:** Proof upload mandatory before moving task to `resolved_proof_uploaded`  
+
+### S-DEPT-09: Assignment History, Reassignments & Notifications
+**Purpose:** Complete immutable audit log of task hand-offs, reassignments, and department-level notifications  
+**Data:** GET /tasks/{task_id}/assignment-history  
+**Displays:** Chronological timeline of assignments (previous officer -> new officer, assigned by, timestamp, assignment type: recommended/manual/auto-dispatch, rationale)  
 
 ---
 

@@ -1,4 +1,4 @@
-﻿# 03 — System Architecture
+# 03 — System Architecture
 ## Nagorik Sathi AI — R&D Report v1.2
 
 > Architecture derived from R&D §7. **[PROPOSED]** = decisions not specified by R&D.
@@ -369,3 +369,33 @@ GitHub Actions CI/CD:
 | SSE vs. WebSocket | SSE primary; WebSocket for staff consoles | SSE simpler, firewall-friendly for citizen interface |
 | AI inference path | Async workers, not in request path | R&D specified: model latency never blocks the UI |
 | Audit log | Append-only Postgres table | R&D requires immutable audit; Postgres trigger prevents mutation |
+
+---
+
+## 11. Department Dispatcher, Officer Availability & Persistent Queue Architecture (Explicit Addition)
+
+### 11.1 Department Dispatcher Subsystem
+```mermaid
+flowchart TD
+    CaseApproved["Coordinator Approves Case Plan"] --> DeptQueue["Incoming Department Requests Queue"]
+    DeptQueue --> DeptAction{"Department Review"}
+    DeptAction -- "Reject (Mandatory Reason)" --> RejAudit["Log Audit & Return to Coordinator Review"]
+    DeptAction -- "Accept Responsibility" --> CheckPrereq{"Prerequisites Completed?"}
+    CheckPrereq -- "No (Blocked)" --> WaitQueueBlocked["task_waiting_queue (status: BLOCKED)"]
+    CheckPrereq -- "Yes (Ready)" --> MatchOfficer["Assignment Recommendation Engine"]
+    
+    MatchOfficer --> EvalEligibility{"Eligible Available Officers Exist?"}
+    EvalEligibility -- "No / All at Capacity" --> WaitQueueReady["task_waiting_queue (status: QUEUED)"]
+    EvalEligibility -- "Yes" --> RankCandidates["Transparent Multi-Criteria Ranking"]
+    RankCandidates --> DispatchMode{"Dispatch Policy"}
+    DispatchMode -- "Manual" --> DispatcherConfirm["Department Dispatcher Confirms Assignment"]
+    DispatchMode -- "Auto-Dispatch" --> AtomicAssign["Atomic Concurrency-Safe Assignment"]
+    DispatcherConfirm --> AtomicAssign
+    AtomicAssign --> TaskAssigned["Task IN_PROGRESS + Officer Active Count Increment"]
+```
+
+### 11.2 Concurrency & State Safety Mechanisms
+- **Atomic Queue Processing**: When officers become available or a dispatcher triggers assignment, transactions use `SELECT FOR UPDATE` on task and officer rows to eliminate capacity race conditions and double-dispatch.
+- **Restart-Resilient Queue**: `task_waiting_queue` persists state directly in PostgreSQL/SQLite. Upon service startup, the queue state is fully recovered.
+- **Prerequisite Locking Guard**: Dependent tasks (e.g., Road repair) cannot be transitioned out of `BLOCKED` queue status until the upstream prerequisite task (Drain cleaning) completes with verified evidence.
+

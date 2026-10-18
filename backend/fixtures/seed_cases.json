@@ -1,0 +1,34 @@
+[
+  {
+    "tracking_number": "NS-2026-W03-1001",
+    "title_bn": "ড্রেনেজ ও বর্জ্য অপসারণ সমন্বিত কেস",
+    "description_bn": "আমাদের গলির সামনে অনেক ময়লা জমে ড্রেন বন্ধ হয়ে গেছে। পানি জমে রাস্তা নষ্ট হচ্ছে।",
+    "primary_category": "waste",
+    "secondary_categories": ["drain", "road"],
+    "ward_number": 3,
+    "priority": "high",
+    "status": "in_progress",
+    "tasks": [
+      {
+        "sequence_order": 1,
+        "title_bn": "১. উন্মুক্ত স্তূপীকৃত বর্জ্য অপসারণ",
+        "department_code": "waste",
+        "status": "completed_awaiting_review"
+      },
+      {
+        "sequence_order": 2,
+        "title_bn": "২. ড্রেনের পলি ও স্ল্যাব পরিষ্কার",
+        "department_code": "drain",
+        "status": "in_progress",
+        "prerequisite_sequence": 1
+      },
+      {
+        "sequence_order": 3,
+        "title_bn": "৩. জলাবদ্ধতায় ক্ষতিগ্রস্ত সড়ক মেরামত",
+        "department_code": "road",
+        "status": "waiting_prerequisite",
+        "prerequisite_sequence": 2
+      }
+    ]
+  }
+]
